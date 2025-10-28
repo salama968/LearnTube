@@ -8,6 +8,13 @@
       "when": 1761526695908,
       "tag": "0000_goofy_mockingbird",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1761602499959,
+      "tag": "0001_free_red_hulk",
+      "breakpoints": true
     }
   ]
 }

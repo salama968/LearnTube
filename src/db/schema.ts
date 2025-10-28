@@ -15,6 +15,7 @@ import { relations } from "drizzle-orm";
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   googleId: varchar("google_id", { length: 255 }).notNull().unique(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 255 }).notNull(),
   avatarUrl: text("avatar_url"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -128,3 +129,6 @@ export const videosRelations = relations(videos, ({ one, many }) => ({
   progress: many(progress),
   userActivity: many(userActivity),
 }));
+
+export type NewUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;
