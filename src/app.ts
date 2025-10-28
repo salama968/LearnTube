@@ -6,6 +6,7 @@ import * as schema from "./db/schema.ts";
 import { configurePassport } from "./config/passport.ts";
 import authRoutes from "./routes/auth.routes.ts";
 import courseRoutes from "./routes/course.routes.ts";
+import activityRoutes from "./routes/activity.routes.ts";
 
 const app = express();
 
@@ -31,5 +32,6 @@ app.use(passport.session());
 
 app.use("/auth", authRoutes);
 app.use("/courses", courseRoutes);
+app.use("/activity", activityRoutes);
 
 export { app };
