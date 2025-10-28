@@ -5,6 +5,7 @@ import { db } from "./db/index.ts";
 import * as schema from "./db/schema.ts";
 import { configurePassport } from "./config/passport.ts";
 import authRoutes from "./routes/auth.routes.ts";
+import courseRoutes from "./routes/course.routes.ts";
 
 const app = express();
 
@@ -29,5 +30,6 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use("/auth", authRoutes);
+app.use("/courses", courseRoutes);
 
 export { app };
