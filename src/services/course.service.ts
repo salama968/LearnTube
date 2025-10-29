@@ -1,6 +1,6 @@
 import { db } from "../db/index.ts";
 import { courses, videos } from "../db/schema.ts";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import {
   extractYouTubeId,
   fetchVideoMetadata,
@@ -23,6 +23,17 @@ export async function createCourseFromUrl(userId: string, youtubeUrl: string) {
 }
 
 async function createSingleVideoCourse(userId: string, videoId: string) {
+  const existingCourse = await db
+    .select()
+    .from(courses)
+    .leftJoin(videos, eq(videos.coursesId, courses.id))
+    .where(and(eq(courses.userId, userId), eq(videos.youtubeVideoId, videoId)))
+    .limit(1);
+
+  if (existingCourse.length > 0 && existingCourse[0]?.courses) {
+    throw new Error("You have already added this video to your courses");
+  }
+
   const videoMetadata = await fetchVideoMetadata(videoId);
 
   const [course] = await db
@@ -59,6 +70,18 @@ async function createSingleVideoCourse(userId: string, videoId: string) {
 }
 
 async function createPlaylistCourse(userId: string, playlistId: string) {
+  const existingCourse = await db
+    .select()
+    .from(courses)
+    .where(
+      and(eq(courses.userId, userId), eq(courses.youtubePlaylistId, playlistId))
+    )
+    .limit(1);
+
+  if (existingCourse.length > 0) {
+    throw new Error("You have already added this playlist to your courses");
+  }
+
   const playlistMetadata = await fetchPlaylistMetadata(playlistId);
 
   const totalDuration = playlistMetadata.videos.reduce(

@@ -15,6 +15,13 @@
       "when": 1761602499959,
       "tag": "0001_free_red_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1761699561497,
+      "tag": "0002_smiling_mentor",
+      "breakpoints": true
     }
   ]
 }

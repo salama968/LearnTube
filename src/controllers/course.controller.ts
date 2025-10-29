@@ -34,6 +34,25 @@ export async function createCourse(
     });
   } catch (error) {
     console.error("Create course error:", error);
+
+    if (error instanceof Error) {
+      if (error.message.includes("already added")) {
+        res.status(409).json({
+          error: "Course already exists",
+          message: error.message,
+        });
+        return;
+      }
+
+      if (error.message.includes("Invalid YouTube URL")) {
+        res.status(400).json({
+          error: "Invalid URL",
+          message: error.message,
+        });
+        return;
+      }
+    }
+
     res.status(500).json({
       error: "Failed to create course",
       message: error instanceof Error ? error.message : "Unknown error",

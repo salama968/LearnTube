@@ -29,7 +29,7 @@ export const courses = pgTable("courses", {
   title: varchar("title", { length: 255 }).notNull(),
   describtion: text("describtion"),
   thumbnailUrl: text("thumbnail_url"),
-  youtubePlaylistId: varchar("youtube_playlist_id", { length: 255 }).unique(),
+  youtubePlaylistId: varchar("youtube_playlist_id", { length: 255 }),
   totalDurationSeconds: integer("total_duration_second").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -39,9 +39,7 @@ export const videos = pgTable("videos", {
   coursesId: uuid("course_id")
     .notNull()
     .references(() => courses.id, { onDelete: "cascade" }),
-  youtubeVideoId: varchar("youtube_video_id", { length: 255 })
-    .notNull()
-    .unique(),
+  youtubeVideoId: varchar("youtube_video_id", { length: 255 }).notNull(),
   title: text("title").notNull(),
   durationSeconds: integer("duration_seconds").notNull(),
   thumbnailUrl: text("thumbnail_url"),
