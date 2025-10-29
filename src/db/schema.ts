@@ -9,6 +9,7 @@ import {
   timestamp,
   uuid,
   varchar,
+  unique,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -21,30 +22,41 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const courses = pgTable("courses", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  title: varchar("title", { length: 255 }).notNull(),
-  describtion: text("describtion"),
-  thumbnailUrl: text("thumbnail_url"),
-  youtubePlaylistId: varchar("youtube_playlist_id", { length: 255 }),
-  totalDurationSeconds: integer("total_duration_second").default(0).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const courses = pgTable(
+  "courses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 255 }).notNull(),
+    describtion: text("describtion"),
+    thumbnailUrl: text("thumbnail_url"),
+    youtubePlaylistId: varchar("youtube_playlist_id", { length: 255 }),
+    totalDurationSeconds: integer("total_duration_second").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [unique().on(table.userId, table.youtubePlaylistId)]
+);
 
-export const videos = pgTable("videos", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  coursesId: uuid("course_id")
-    .notNull()
-    .references(() => courses.id, { onDelete: "cascade" }),
-  youtubeVideoId: varchar("youtube_video_id", { length: 255 }).notNull(),
-  title: text("title").notNull(),
-  durationSeconds: integer("duration_seconds").notNull(),
-  thumbnailUrl: text("thumbnail_url"),
-  order: integer("order").default(0),
-});
+export const videos = pgTable(
+  "videos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    coursesId: uuid("course_id")
+      .notNull()
+      .references(() => courses.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    youtubeVideoId: varchar("youtube_video_id", { length: 255 }).notNull(),
+    title: text("title").notNull(),
+    durationSeconds: integer("duration_seconds").notNull(),
+    thumbnailUrl: text("thumbnail_url"),
+    order: integer("order").default(0),
+  },
+  (table) => [unique().on(table.userId, table.youtubeVideoId)]
+);
 
 export const progress = pgTable(
   "progress",

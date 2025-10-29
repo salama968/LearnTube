@@ -36,10 +36,15 @@ export async function createCourse(
     console.error("Create course error:", error);
 
     if (error instanceof Error) {
-      if (error.message.includes("already added")) {
+      // Check for PostgreSQL unique constraint violation
+      if (
+        (error as any).code === "23505" || // PostgreSQL unique violation
+        error.message.includes("duplicate key") ||
+        error.message.includes("already added")
+      ) {
         res.status(409).json({
           error: "Course already exists",
-          message: error.message,
+          message: "You have already added this video/playlist to your courses",
         });
         return;
       }
