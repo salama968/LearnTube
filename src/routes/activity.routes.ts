@@ -6,6 +6,7 @@ import {
   getCourseProgressHandler,
   getHeatmapHandler,
   getDashboardHandler,
+  getDayActivity,
 } from "../controllers/activity.controller.ts";
 import { requireAuth } from "../middleware/auth.middleware.ts";
 
@@ -26,6 +27,8 @@ router.get(
   requireAuth as any,
   getCourseProgressHandler as any
 );
+
+router.get("/day-activity", requireAuth as any, getDayActivity as any);
 
 router.get("/heatmap", requireAuth as any, getHeatmapHandler as any);
 

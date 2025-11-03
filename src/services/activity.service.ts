@@ -200,6 +200,49 @@ export async function getCourseProgressData(userId: string, courseId: string) {
   };
 }
 
+export async function getDayActivityData(userId: string, dayDate: string) {
+  const [dailyRecord] = await db
+    .select()
+    .from(dailyActivity)
+    .where(
+      and(eq(dailyActivity.userId, userId), eq(dailyActivity.date, dayDate))
+    );
+
+  // Get all activities (video watches) for that day
+  const dayStart = `${dayDate} 00:00:00`;
+  const dayEnd = `${dayDate} 23:59:59`;
+
+  const activities = await db
+    .select({
+      id: userActivity.id,
+      videoId: userActivity.videoId,
+      videoTitle: videos.title,
+      courseName: courses.title,
+      watchedSeconds: userActivity.watchedSeconds,
+      timestamp: userActivity.timestamp,
+    })
+    .from(userActivity)
+    .leftJoin(videos, eq(userActivity.videoId, videos.id))
+    .leftJoin(courses, eq(videos.coursesId, courses.id))
+    .where(
+      and(
+        eq(userActivity.userId, userId),
+        sql`${userActivity.timestamp} >= ${dayStart}`,
+        sql`${userActivity.timestamp} <= ${dayEnd}`
+      )
+    )
+    .orderBy(userActivity.timestamp);
+
+  // Count unique videos watched
+  const uniqueVideos = new Set(activities.map((a) => a.videoId)).size;
+
+  return {
+    totalSeconds: dailyRecord?.totalSeconds || 0,
+    videosWatched: uniqueVideos,
+    activities: activities,
+  };
+}
+
 export async function getHeatmapData(userId: string, year: number) {
   const startDate = `${year}-01-01`;
   const endDate = `${year}-12-31`;

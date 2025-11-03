@@ -7,6 +7,7 @@ import {
   getCourseProgressData,
   getHeatmapData,
   getDashboardStats,
+  getDayActivityData,
 } from "../services/activity.service.ts";
 
 export async function logActivityHandler(
@@ -139,6 +140,54 @@ export async function getCourseProgressHandler(
     console.error("Get course progress error:", error);
     res.status(500).json({
       error: "Failed to get course progress",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+
+export async function getDayActivity(
+  req: RequestWithUser,
+  res: Response
+): Promise<void> {
+  try {
+    const { date } = req.query; // YYYY-MM-DD format
+    const userId = req.user?.id;
+
+    if (!userId) {
+      res.status(401).json({ error: "Not authenticated" });
+      return;
+    }
+
+    let dayDate: string;
+
+    if (date && typeof date === "string") {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        res.status(400).json({
+          error: "Invalid date format. Use YYYY-MM-DD",
+        });
+        return;
+      }
+      dayDate = date;
+    } else {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0");
+      const day = String(today.getDate()).padStart(2, "0");
+      dayDate = `${year}-${month}-${day}`;
+    }
+
+    const data = await getDayActivityData(userId, dayDate);
+
+    res.json({
+      date: dayDate,
+      totalSeconds: data.totalSeconds,
+      videosWatched: data.videosWatched,
+      activities: data.activities,
+    });
+  } catch (error) {
+    console.error("Get day activity error:", error);
+    res.status(500).json({
+      error: "Failed to get day activity data",
       message: error instanceof Error ? error.message : "Unknown error",
     });
   }
