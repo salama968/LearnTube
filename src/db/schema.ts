@@ -67,7 +67,8 @@ export const progress = pgTable(
     videoId: uuid("video_id")
       .notNull()
       .references(() => videos.id, { onDelete: "cascade" }),
-    watchedSeconds: integer("watched_seconds").default(0).notNull(),
+    checkpointSeconds: integer("checkpoint_seconds").default(0).notNull(), // Resume position
+    totalWatchedSeconds: integer("total_watched_seconds").default(0).notNull(), // Aggregated watch time
     completed: boolean("completed").default(false).notNull(),
     lastWatchedAt: timestamp("last_watched_at").defaultNow().notNull(),
   },

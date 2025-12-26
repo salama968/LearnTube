@@ -48,7 +48,7 @@ export async function updateProgressHandler(
 ): Promise<void> {
   try {
     const { videoId } = req.params;
-    const { watchedSecondsTotal, isCompleted } = req.body;
+    const { checkpointSeconds, isCompleted } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -61,19 +61,14 @@ export async function updateProgressHandler(
       return;
     }
 
-    if (watchedSecondsTotal === undefined || isCompleted === undefined) {
+    if (checkpointSeconds === undefined || isCompleted === undefined) {
       res
         .status(400)
-        .json({ error: "watchedSecondsTotal and isCompleted are required" });
+        .json({ error: "checkpointSeconds and isCompleted are required" });
       return;
     }
 
-    await updateVideoProgress(
-      userId,
-      videoId,
-      watchedSecondsTotal,
-      isCompleted
-    );
+    await updateVideoProgress(userId, videoId, checkpointSeconds, isCompleted);
 
     res.json({ success: true });
   } catch (error) {

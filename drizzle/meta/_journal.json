@@ -29,6 +29,13 @@
       "when": 1761753293710,
       "tag": "0003_keen_supreme_intelligence",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1735257600000,
+      "tag": "0004_progress_checkpoint_migration",
+      "breakpoints": true
     }
   ]
 }

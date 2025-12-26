@@ -89,6 +89,31 @@ export async function logActivity(
         completedVideos: 0,
       });
     }
+
+    // Update video progress - increment totalWatchedSeconds
+    const existingProgress = await tx
+      .select()
+      .from(progress)
+      .where(and(eq(progress.userId, userId), eq(progress.videoId, videoId)));
+
+    if (existingProgress.length > 0) {
+      await tx
+        .update(progress)
+        .set({
+          totalWatchedSeconds: sql`${progress.totalWatchedSeconds} + ${watchedSecondsChunk}`,
+          lastWatchedAt: new Date(),
+        })
+        .where(and(eq(progress.userId, userId), eq(progress.videoId, videoId)));
+    } else {
+      await tx.insert(progress).values({
+        userId,
+        videoId,
+        checkpointSeconds: 0,
+        totalWatchedSeconds: watchedSecondsChunk,
+        completed: false,
+        lastWatchedAt: new Date(),
+      });
+    }
   });
 
   return { success: true };
@@ -97,7 +122,7 @@ export async function logActivity(
 export async function updateVideoProgress(
   userId: string,
   videoId: string,
-  watchedSecondsTotal: number,
+  checkpointSeconds: number,
   isCompleted: boolean
 ) {
   const [video] = await db.select().from(videos).where(eq(videos.id, videoId));
@@ -119,14 +144,15 @@ export async function updateVideoProgress(
       .values({
         userId,
         videoId,
-        watchedSeconds: watchedSecondsTotal,
+        checkpointSeconds,
+        totalWatchedSeconds: 0,
         completed: isCompleted,
         lastWatchedAt: new Date(),
       })
       .onConflictDoUpdate({
         target: [progress.userId, progress.videoId],
         set: {
-          watchedSeconds: watchedSecondsTotal,
+          checkpointSeconds,
           completed: isCompleted,
           lastWatchedAt: new Date(),
         },
